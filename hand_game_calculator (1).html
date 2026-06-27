@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="حاسبة هاند" />
+<meta name="theme-color" content="#0f1117" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon.png" />
+<title>حاسبة هاند</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f1117;
+  --surface: #181c26;
+  --surface2: #1e2333;
+  --surface3: #242940;
+  --border: rgba(255,255,255,0.07);
+  --border-bright: rgba(255,255,255,0.13);
+  --text: #eef0f6;
+  --text2: #8b90a8;
+  --text3: #555a72;
+  --gold: #c9a84c;
+  --gold-dim: rgba(201,168,76,0.12);
+  --red: #e05555;
+  --red-dim: rgba(224,85,85,0.12);
+  --green: #4caf82;
+  --blue: #5b8def;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font: 'IBM Plex Sans Arabic', sans-serif;
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  padding: calc(var(--safe-top) + 1rem) 1rem calc(var(--safe-bottom) + 5rem);
+  -webkit-tap-highlight-color: transparent;
+}
+.page { max-width: 680px; margin: 0 auto; }
+header { text-align: center; padding: 1.5rem 0 1.25rem; }
+.suit-row { font-size: 1.3rem; letter-spacing: 0.3em; margin-bottom: 0.6rem; opacity: 0.4; }
+header h1 {
+  font-size: 1.8rem; font-weight: 700; letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #c9a84c, #e8d08a, #c9a84c);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 4px;
+}
+header p { font-size: 0.8rem; color: var(--text3); }
+.card {
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem;
+}
+.card-title {
+  font-size: 0.68rem; font-weight: 500; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem;
+}
+.player-names { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.name-field { display: flex; flex-direction: column; gap: 6px; }
+.name-field label { font-size: 0.75rem; }
+.name-field input {
+  background: var(--surface2); border: 0.5px solid var(--border-bright);
+  border-radius: var(--radius-sm); padding: 10px 12px; color: var(--text);
+  font-family: var(--font); font-size: 0.9rem; outline: none;
+  transition: border-color 0.15s; text-align: right; -webkit-appearance: none;
+}
+.name-field input:focus { border-color: var(--gold); }
+.scoreboard { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; }
+.score-header { display: grid; padding: 10px 14px; border-bottom: 0.5px solid var(--border); gap: 4px; }
+.score-header-cell { font-size: 0.7rem; color: var(--text3); text-align: center; font-weight: 500; }
+.score-header-cell:first-child { text-align: right; }
+.player-row { display: grid; padding: 12px 14px; border-bottom: 0.5px solid var(--border); align-items: center; gap: 4px; }
+.player-row:last-child { border-bottom: none; }
+.player-label { display: flex; align-items: center; gap: 8px; }
+.player-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.player-name-display { font-size: 0.88rem; font-weight: 500; }
+.score-cell { text-align: center; font-size: 0.95rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.score-cell.total { color: var(--gold); font-size: 1.05rem; }
+.score-cell.positive { color: var(--green); }
+.score-cell.negative { color: var(--red); }
+.round-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.round-num { font-size: 0.68rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; }
+.round-badge { background: var(--gold-dim); color: var(--gold); border-radius: 100px; padding: 3px 10px; font-size: 0.75rem; font-weight: 500; }
+.inputs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+.round-field { display: flex; flex-direction: column; gap: 6px; }
+.round-field label { font-size: 0.75rem; }
+.score-input-wrap input {
+  width: 100%; background: var(--surface2); border: 0.5px solid var(--border-bright);
+  border-radius: var(--radius-sm); padding: 12px; color: var(--text);
+  font-family: var(--font); font-size: 1.1rem; font-weight: 500; outline: none;
+  text-align: center; -webkit-appearance: none; transition: border-color 0.15s;
+}
+.score-input-wrap input:focus { border-color: var(--blue); background: var(--surface3); }
+.btn-row { display: flex; gap: 8px; }
+.btn {
+  flex: 1; padding: 13px 8px; border-radius: var(--radius-sm);
+  font-family: var(--font); font-size: 0.88rem; font-weight: 500;
+  cursor: pointer; border: none; transition: all 0.15s; -webkit-appearance: none;
+}
+.btn-primary { background: var(--gold); color: #0f1117; }
+.btn-primary:active { background: #d4b55e; transform: scale(0.98); }
+.btn-secondary { background: var(--surface2); color: var(--text2); border: 0.5px solid var(--border-bright); }
+.btn-secondary:active { background: var(--surface3); }
+.btn-danger { background: var(--red-dim); color: var(--red); border: 0.5px solid rgba(224,85,85,0.2); }
+.btn-danger:active { background: rgba(224,85,85,0.22); }
+.history-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; }
+.history-header { display: grid; padding: 10px 14px; border-bottom: 0.5px solid var(--border); font-size: 0.68rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; gap: 4px; }
+.history-row { display: grid; padding: 10px 14px; border-bottom: 0.5px solid var(--border); font-size: 0.85rem; align-items: center; gap: 4px; }
+.history-row:last-child { border-bottom: none; }
+.round-tag { font-size: 0.7rem; color: var(--text3); background: var(--surface2); border-radius: 4px; padding: 2px 6px; width: fit-content; }
+.winner-row {
+  background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(201,168,76,0.03));
+  border: 0.5px solid rgba(201,168,76,0.2); border-radius: var(--radius-sm);
+  padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+}
+.winner-label { font-size: 0.8rem; color: var(--text3); }
+.winner-name { font-size: 0.95rem; font-weight: 600; color: var(--gold); }
+.dot0 { background: #5b8def; } .dot1 { background: #4caf82; }
+.dot2 { background: #e0855b; } .dot3 { background: #a57de8; } .dot4 { background: #e8c24a; }
+.empty-history { padding: 2rem; text-align: center; font-size: 0.82rem; color: var(--text3); }
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <div class="suit-row">♠ ♥ ♦ ♣</div>
+  <h1>حاسبة هاند</h1>
+  <p>نقاط تراكمية — 5 لاعبين</p>
+</header>
+<div class="card">
+  <p class="card-title">أسماء اللاعبين</p>
+  <div class="player-names" id="namesGrid"></div>
+</div>
+<div class="scoreboard" id="scoreboard"></div>
+<div class="card">
+  <div class="round-label-row">
+    <span class="round-num">إدخال جولة</span>
+    <span class="round-badge" id="roundBadge">الجولة 1</span>
+  </div>
+  <div class="inputs-grid" id="roundInputs"></div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="addRound()">✓ تسجيل</button>
+    <button class="btn btn-secondary" onclick="undoRound()">↩ تراجع</button>
+    <button class="btn btn-danger" onclick="resetGame()">↺ إعادة</button>
+  </div>
+</div>
+<div class="history-card" id="historyCard">
+  <div class="history-header" id="historyHeader"></div>
+  <div id="historyBody"><div class="empty-history">لا توجد جولات بعد</div></div>
+</div>
+</div>
+<script>
+const COLORS = ['#5b8def','#4caf82','#e0855b','#a57de8','#e8c24a'];
+const DOT_CLASSES = ['dot0','dot1','dot2','dot3','dot4'];
+const N = 5;
+let playerNames = ['لاعب 1','لاعب 2','لاعب 3','لاعب 4','لاعب 5'];
+let scores = [0,0,0,0,0];
+let history = [];
+
+function save() {
+  try { localStorage.setItem('hand_data', JSON.stringify({playerNames, scores, history})); } catch(e) {}
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem('hand_data'));
+    if (d) { playerNames = d.playerNames; scores = d.scores; history = d.history; }
+  } catch(e) {}
+}
+
+function getNames() {
+  return Array.from(document.querySelectorAll('.name-input')).map((el,i) => el.value.trim() || `لاعب ${i+1}`);
+}
+function buildNamesGrid() {
+  const grid = document.getElementById('namesGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < N; i++) {
+    const div = document.createElement('div');
+    div.className = 'name-field';
+    div.innerHTML = `<label style="color:${COLORS[i]}">اللاعب ${i+1}</label>
+      <input class="name-input" type="text" placeholder="اللاعب ${i+1}" value="${playerNames[i]}" oninput="onNameChange()" />`;
+    grid.appendChild(div);
+  }
+}
+function onNameChange() { playerNames = getNames(); save(); renderScoreboard(); renderHistory(); }
+function buildRoundInputs() {
+  const grid = document.getElementById('roundInputs');
+  grid.innerHTML = '';
+  playerNames = getNames();
+  for (let i = 0; i < N; i++) {
+    const div = document.createElement('div');
+    div.className = 'round-field';
+    div.innerHTML = `<label style="color:${COLORS[i]}">${playerNames[i]}</label>
+      <div class="score-input-wrap"><input type="number" id="ri${i}" placeholder="0" step="1" inputmode="numeric" /></div>`;
+    grid.appendChild(div);
+  }
+}
+function renderScoreboard() {
+  const board = document.getElementById('scoreboard');
+  playerNames = getNames();
+  const hdrCols = history.length > 0
+    ? history.map((_,i) => `<div class="score-header-cell">ج${i+1}</div>`).join('') + '<div class="score-header-cell" style="color:var(--gold)">المجموع</div>'
+    : '<div class="score-header-cell" style="color:var(--gold)">المجموع</div>';
+  const gridStyle = `grid-template-columns: 2fr ${history.length > 0 ? `repeat(${history.length}, 1fr) ` : ''}1fr`;
+  let html = `<div class="score-header" style="${gridStyle}">
+    <div class="score-header-cell" style="text-align:right;">اللاعب</div>${hdrCols}</div>`;
+  for (let i = 0; i < N; i++) {
+    let roundCells = '';
+    if (history.length > 0) {
+      history.forEach(round => {
+        const d = round.deltas[i];
+        const cls = d > 0 ? 'positive' : d < 0 ? 'negative' : '';
+        roundCells += `<div class="score-cell ${cls}">${d > 0 ? '+' : ''}${d !== undefined ? d : '-'}</div>`;
+      });
+    }
+    html += `<div class="player-row" style="${gridStyle}">
+      <div class="player-label"><div class="player-dot ${DOT_CLASSES[i]}"></div>
+      <span class="player-name-display">${playerNames[i]}</span></div>
+      ${roundCells}<div class="score-cell total">${scores[i]}</div></div>`;
+  }
+  if (history.length > 0) {
+    const maxScore = Math.max(...scores);
+    const winnerIdx = scores.indexOf(maxScore);
+    html += `<div style="padding:10px 14px;"><div class="winner-row">
+      <span class="winner-label">المتصدر حالياً</span>
+      <span class="winner-name" style="color:${COLORS[winnerIdx]}">🏆 ${playerNames[winnerIdx]} (${maxScore})</span>
+      </div></div>`;
+  }
+  board.innerHTML = html;
+}
+function renderHistory() {
+  const body = document.getElementById('historyBody');
+  const hdr = document.getElementById('historyHeader');
+  playerNames = getNames();
+  if (history.length === 0) { hdr.style.display = 'none'; body.innerHTML = '<div class="empty-history">لا توجد جولات بعد</div>'; return; }
+  hdr.style.display = 'grid';
+  hdr.style.gridTemplateColumns = `70px repeat(${N}, 1fr)`;
+  hdr.innerHTML = `<div>الجولة</div>${playerNames.map((n,i) => `<div style="color:${COLORS[i]};text-align:center;">${n}</div>`).join('')}`;
+  let rows = '';
+  history.slice().reverse().forEach((round, ri) => {
+    const rnum = history.length - ri;
+    const cells = round.deltas.map((d,i) => {
+      const cls = d > 0 ? 'positive' : d < 0 ? 'negative' : '';
+      return `<div class="score-cell ${cls}" style="font-size:0.85rem;">${d > 0 ? '+' : ''}${d}</div>`;
+    }).join('');
+    rows += `<div class="history-row" style="grid-template-columns: 70px repeat(${N}, 1fr);">
+      <div class="round-tag">ج ${rnum}</div>${cells}</div>`;
+  });
+  body.innerHTML = rows;
+}
+function addRound() {
+  playerNames = getNames();
+  const deltas = [];
+  let valid = true;
+  for (let i = 0; i < N; i++) {
+    const val = parseFloat(document.getElementById('ri'+i).value);
+    if (isNaN(val)) { valid = false; break; }
+    deltas.push(val);
+  }
+  if (!valid) { alert('أدخل نقاط جميع اللاعبين'); return; }
+  deltas.forEach((d,i) => { scores[i] += d; });
+  history.push({ deltas, totals: [...scores] });
+  for (let i = 0; i < N; i++) { const el = document.getElementById('ri'+i); if (el) el.value = ''; }
+  document.getElementById('roundBadge').textContent = `الجولة ${history.length + 1}`;
+  save(); renderScoreboard(); renderHistory(); buildRoundInputs();
+  document.getElementById('ri0').focus();
+}
+function undoRound() {
+  if (history.length === 0) return;
+  const last = history.pop();
+  last.deltas.forEach((d,i) => { scores[i] -= d; });
+  document.getElementById('roundBadge').textContent = `الجولة ${history.length + 1}`;
+  save(); renderScoreboard(); renderHistory(); buildRoundInputs();
+}
+function resetGame() {
+  if (history.length > 0 && !confirm('تبي تعيد اللعبة من الأول؟')) return;
+  scores = [0,0,0,0,0]; history = [];
+  document.getElementById('roundBadge').textContent = 'الجولة 1';
+  save(); renderScoreboard(); renderHistory(); buildRoundInputs();
+}
+load(); buildNamesGrid(); buildRoundInputs(); renderScoreboard(); renderHistory();
+if ("serviceWorker" in navigator) { navigator.serviceWorker.register("./sw.js").catch(()=>{}); }
+</script>
+</body>
+</html>

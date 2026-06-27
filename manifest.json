@@ -1,0 +1,16 @@
+{
+  "name": "حاسبة هاند",
+  "short_name": "هاند",
+  "description": "حاسبة نقاط لعبة هاند",
+  "start_url": "./hand_game_calculator.html",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#0f1117",
+  "orientation": "portrait",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    { "src": "icon.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
